@@ -9,11 +9,12 @@ from sqlalchemy_utils import database_exists, create_database
 from sqlalchemy import MetaData, Table, Column, Integer, String
 from sqlalchemy.orm import sessionmaker, declarative_base
 
+
 Base = declarative_base()
 
 
 class New(Base):
-    __tablename__ = 'new'
+    __tablename__ = 'news'
     id = Column(Integer(), primary_key=True)
     time = Column(String(100), nullable=False)
     title = Column(String(100), nullable=False)
@@ -57,7 +58,9 @@ class Parser:
             ds = bs.find('div', 'news')
             new_text = "".join(new_text[:-len([_.text for _ in ds.find_all('p')])])
 
-            self.news.append([new_time, new_title, new_text])
+            self.news.append(New(time=new_time,
+                                 title=new_title,
+                                 text=new_text))
 
     def add_to_database(self):
         url = f"postgresql://postgres:1@localhost:5432/news_database"
@@ -65,29 +68,26 @@ class Parser:
             create_database(url)
         metadata = MetaData()
         engine = create_engine(url, echo=True)
-        new = Table('new', metadata,
-                    Column('id', Integer(), primary_key=True),
-                    Column('time', String(100), nullable=False),
-                    Column('title', String(100), nullable=False),
-                    Column('text', String(100), nullable=False)
-                    )
+        news_table = Table('news', metadata,
+                           Column('id', Integer(), primary_key=True),
+                           Column('time', String, nullable=False),
+                           Column('title', String, nullable=False),
+                           Column('text', String, nullable=False)
+                           )
         metadata.create_all(engine)
         Session = sessionmaker(bind=engine)
         session = Session()
-        n1 = New(
-            time='05:24',
-            title='inili mashinu',
-            text='karl u klary ukral koraly klara ukrala u karla klarnet',
-        )
-        session.add(n1)
+        for new in self.news:
+            session.add(new)
         session.commit()
 
     def get_news(self):
         # print("news", datetime.datetime.now())
         self.parse_news()
+        self.add_to_database()
         # Timer(10.0, self.get_news).start()
 
 
 p = Parser()
 # p.get_news()
-p.add_to_database()
+p.get_news()
