@@ -60,7 +60,7 @@ class Parser:
             self.news.append([new_time, new_title, new_text])
 
     def add_to_database(self):
-        url = f"postgresql://postgres:1@localhost:5432/news"
+        url = f"postgresql://postgres:1@localhost:5432/news_database"
         if not database_exists(url):
             create_database(url)
         metadata = MetaData()
