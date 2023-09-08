@@ -1,24 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
-from threading import Timer
-import time
-import datetime
-
-from sqlalchemy import create_engine
-from sqlalchemy_utils import database_exists, create_database
-from sqlalchemy import MetaData, Table, Column, Integer, String
-from sqlalchemy.orm import sessionmaker, declarative_base
-
-
-Base = declarative_base()
-
-
-class New(Base):
-    __tablename__ = 'news'
-    id = Column(Integer(), primary_key=True)
-    time = Column(String(100), nullable=False)
-    title = Column(String(100), nullable=False)
-    text = Column(String(100), nullable=False)
+from database import New, Database
 
 
 class Parser:
@@ -63,31 +45,11 @@ class Parser:
                                  text=new_text))
 
     def add_to_database(self):
-        url = f"postgresql://postgres:1@localhost:5432/news_database"
-        if not database_exists(url):
-            create_database(url)
-        metadata = MetaData()
-        engine = create_engine(url, echo=True)
-        news_table = Table('news', metadata,
-                           Column('id', Integer(), primary_key=True),
-                           Column('time', String, nullable=False),
-                           Column('title', String, nullable=False),
-                           Column('text', String, nullable=False)
-                           )
-        metadata.create_all(engine)
-        Session = sessionmaker(bind=engine)
-        session = Session()
-        for new in self.news:
-            session.add(new)
-        session.commit()
-
-    def get_news(self):
-        # print("news", datetime.datetime.now())
-        self.parse_news()
-        self.add_to_database()
-        # Timer(10.0, self.get_news).start()
+        d = Database()
+        d.add(news_list=self.news)
 
 
-p = Parser()
-# p.get_news()
-p.get_news()
+if __name__ == "__main__":
+    p = Parser()
+    p.parse_news()
+    p.add_to_database()
