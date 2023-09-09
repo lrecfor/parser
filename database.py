@@ -42,3 +42,11 @@ class Database:
             if session.query(exists().where(New.title == new.title)).scalar() is False:
                 session.add(new)
         session.commit()
+        session.close()
+
+    def get(self, new_id):
+        Session = sessionmaker(bind=self.engine)
+        session = Session()
+        res = session.query(New).filter_by(id=new_id).first()
+        session.close()
+        return res
