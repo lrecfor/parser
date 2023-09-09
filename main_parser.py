@@ -1,7 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
 import schedule
-import time
 import datetime
 from database import New, Database
 
