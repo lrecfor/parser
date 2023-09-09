@@ -59,6 +59,6 @@ class Parser:
 
 if __name__ == "__main__":
     p = Parser()
-    schedule.every().minute.do(p.update_database)
+    schedule.every().hour.do(p.update_database)
     while True:
         schedule.run_pending()
