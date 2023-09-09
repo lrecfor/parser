@@ -1,5 +1,8 @@
 from bs4 import BeautifulSoup
 import requests
+import schedule
+import time
+import datetime
 from database import New, Database
 
 
@@ -48,8 +51,14 @@ class Parser:
         d = Database()
         d.add(news_list=self.news)
 
+    def update_database(self):
+        print("update_database(): ", datetime.datetime.now())
+        self.parse_news()
+        self.add_to_database()
+
 
 if __name__ == "__main__":
     p = Parser()
-    p.parse_news()
-    p.add_to_database()
+    schedule.every().minute.do(p.update_database)
+    while True:
+        schedule.run_pending()

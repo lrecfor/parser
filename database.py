@@ -2,6 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy_utils import database_exists, create_database
 from sqlalchemy import MetaData, Table, Column, Integer, String
 from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.sql import exists
 
 
 base = declarative_base()
@@ -38,5 +39,6 @@ class Database:
         Session = sessionmaker(bind=self.engine)
         session = Session()
         for new in news_list:
-            session.add(new)
+            if session.query(exists().where(New.title == new.title)).scalar() is False:
+                session.add(new)
         session.commit()
