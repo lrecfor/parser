@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
-from database import New, Database
+from database import New
 
 
 class Parser:
